@@ -22,7 +22,7 @@ A Node.JS module, which provides an object oriented wrapper for the GitHub v3 AP
 
 ## Installation
 
-  Install with the Node.JS package manager [npm](http://npmjs.org/):
+  Install with the Node.JS package manager [npm](http://npmjs.org/) ![NPM version](https://badge.fury.io/js/github.png):
 
       $ npm install github2
 
@@ -111,6 +111,13 @@ github.authenticate({
     type: "oauth",
     token: token
 });
+
+// OAuth2 Key/Secret
+github.authenticate({
+    type: "oauth",
+    key: "clientID",
+    secret: "clientSecret"
+})
 
 // Deprecated Gihub API token (seems not to be working with the v3 API)
 github.authenticate({

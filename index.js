@@ -387,13 +387,12 @@ var Client = module.exports = function(config) {
      *          token: "e5a4a27487c26e571892846366de023349321a73"
      *      });
      *
-     *      // or client
+     *      // or oauth key/ secret
      *      github.authenticate({
-     *          type: "client",
-     *          username: "client_id",
-     *          password: "client_secret"
+     *          type: "oauth",
+     *          key: "clientID",
+     *          secret: "clientSecret"
      *      });
-     *
      **/
     this.authenticate = function(options) {
         if (!options) {
@@ -401,16 +400,12 @@ var Client = module.exports = function(config) {
             return;
         }
         if (!options.type || "basic|oauth|client".indexOf(options.type) === -1)
-            throw new Error("Invalid authentication type, must be 'basic' or 'oauth'");
-        if (options.type == "basic") {
-            if (!options.username || !options.password)
-                throw new Error("Basic authentication requires both a username and password to be set");
-        } else if (options.type == "oauth") {
-            if (!options.token)
-                throw new Error("OAuth2 authentication requires a token to be set");
-        } else if (options.type == "client") {
-            if (!options.username || !options.password)
-                throw new Error("Client authentication requires both a username and password to be set");
+            throw new Error("Invalid authentication type, must be 'basic', 'oauth' or 'client'");
+        if (options.type == "basic" && (!options.username || !options.password))
+            throw new Error("Basic authentication requires both a username and password to be set");
+        if (options.type == "oauth") {
+            if (!options.token && !(options.key && options.secret))
+                throw new Error("OAuth2 authentication requires a token or key & secret to be set");
         }
 
         this.auth = options;
@@ -703,11 +698,6 @@ var Client = module.exports = function(config) {
                     basic = new Buffer(this.auth.username + ":" + this.auth.password, "ascii").toString("base64");
                     headers.authorization = "Basic " + basic;
                     break;
-                case "client":
-                    path += (path.indexOf("?") === -1 ? "?" : "&") +
-                        "client_id=" + encodeURIComponent(this.auth.username) +
-                        "&client_secret=" + encodeURIComponent(this.auth.password);
-                    break;
                 default:
                     break;
             }
@@ -756,15 +746,15 @@ var Client = module.exports = function(config) {
                 }
             });
             res.on("end", function() {
-                if (!callbackCalled) {
-                    callbackCalled = true;
-                    if (res.statusCode >= 400 && res.statusCode < 600 || res.statusCode < 10) {
-                        callback(new error.HttpError(data, res.statusCode));
-                    }
-                    else {
-                        res.data = data;
-                        callback(null, res);
-                    }
+                if (callbackCalled)
+                    return;
+
+                callbackCalled = true;
+                if (res.statusCode >= 400 && res.statusCode < 600 || res.statusCode < 10) {
+                    callback(new error.HttpError(data, res.statusCode));
+                } else {
+                    res.data = data;
+                    callback(null, res);
                 }
             });
         });

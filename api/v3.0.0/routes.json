@@ -2196,7 +2196,7 @@
                     "required": true,
                     "validation": "",
                     "invalidmsg": "",
-                    "description": "The new file content as a Base64 encoded String."
+                    "description": "The updated file content, Base64 encoded."
                 },
                 "sha": {
                     "type": "String",
@@ -2840,14 +2840,6 @@
             }
         },
 
-        "get-keys-from": {
-            "url": "/users/:user/keys",
-            "method": "GET",
-            "params": {
-                "$user": null
-            }
-        },
-
         "get": {
             "url": "/user",
             "method": "GET",
@@ -2999,6 +2991,16 @@
             "url": "/user/keys",
             "method": "GET",
             "params": {
+                "$page": null,
+                "$per_page": null
+            }
+        },
+
+        "get-keys-from-user": {
+            "url": "/user/:user/keys",
+            "method": "GET",
+            "params": {
+                "$user": null,
                 "$page": null,
                 "$per_page": null
             }
